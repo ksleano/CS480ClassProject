@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  *
@@ -20,11 +19,11 @@ public class CS480ClassDB {
     /**
      * @param args the command line arguments
      */
-    private static boolean sameIP;
+    private static boolean sameIPDB;
+    private static boolean sameIPDDOS;
 
     public static void main(String[] args) {
         // TODO code application logic here
-
         ArrayList<Log> logOfDB = new ArrayList<>();
         ArrayList<Log> logOfDDOS = new ArrayList<>();
 
@@ -46,32 +45,42 @@ public class CS480ClassDB {
                 d8 = inFile.next();
                 // hold the entries
 
-                Log en = new Log(d1, d2, d3, d4, d5, d6, d7, d8);
+                Log entry = new Log(d1, d2, d3, d4, d5, d6, d7, d8);
 
                 // use i to feed logOfDB.get()
                 int i = 0;
                 //assume false
-                sameIP = false;
+                sameIPDB = false;
+                sameIPDDOS = false;
                 while (i < logOfDB.size()) {
-                    // get instance of same ip in the log file
-                    if (logOfDB.get(i).getIpSRC().equals(en.getIpSRC())) {
-                        sameIP = true;
-                        if ((en.getTime() - logOfDB.get(i).getTime()) < 2.0) {
+
+                    if ((entry.getTime() - logOfDB.get(i).getTime()) > 5) {
+                        logOfDB.remove(i);
+                    }
+
+                    if (logOfDB.get(i).getIpSRC().equals(entry.getIpSRC())) {
+                        sameIPDB = true;
+                        if ((entry.getTime() - logOfDB.get(i).getTime()) < 2.0) {
 
 //                            // if new log is already in ddos list update counter
-                            if ( logOfDDOS.isEmpty()) 
-                            {
-                                logOfDDOS.add(en);
+                            if (logOfDDOS.isEmpty()) {
+                                logOfDDOS.add(entry);
                             }
+                            // itterate over DDOS log
+                            //if same IP, update the counter
                             for (int k = 0; k < logOfDDOS.size(); k++) {
-                                if (logOfDDOS.get(k).getIpSRC().equals(en.getIpSRC())) {
+                                if (logOfDDOS.get(k).getIpSRC().equals(entry.getIpSRC())) {
+                                    sameIPDDOS = true;
                                     logOfDDOS.get(k).updateDDOScounter();
 
-                                } else {   //else add to DDOS log
-                                    logOfDDOS.add(en);
                                 }
                             }
-
+                            //if unique IP to DDOS list, add it and update counter
+                            if (sameIPDDOS == false) {
+                                logOfDDOS.add(entry);
+                                int j = logOfDDOS.size()-1;
+                                logOfDDOS.get(j).updateDDOScounter();
+                            }
                             //exit loop
                             i = logOfDB.size();
                         }
@@ -79,14 +88,15 @@ public class CS480ClassDB {
                     i++;
                 }
 
-                if (sameIP == false) {
-                    logOfDB.add(en);
+                if (sameIPDB == false) {
+                    logOfDB.add(entry);
                 }
+                //remove entry if expired
 
             }
             inFile.close();
         } catch (FileNotFoundException ex) {
-            System.out.println("fdsfasfas");
+            System.out.println("File not Found");
         }
         // to get info pass the index to get
         //System.out.println(logOfDB.get(0).print());
@@ -105,5 +115,4 @@ public class CS480ClassDB {
         }
 
     }
-
 }

@@ -66,6 +66,7 @@ public class Log {
     public void updateDDOScounter(){
         this.ddosCounter += 1;
     }
+   
     
     
     
